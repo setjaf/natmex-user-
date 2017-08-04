@@ -34,5 +34,5 @@ class Sesiones(models.Model):
     id_usuario = models.ForeignKey('Usuarios', on_delete=models.CASCADE,)
 
     def __str__(self):
-        return self.id
+        return self.id_usuario
 # Create your models here.
