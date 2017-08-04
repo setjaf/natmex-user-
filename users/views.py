@@ -18,7 +18,8 @@ def index(request):
         if Sesiones.objects.filter(token=request.COOKIES['token']):
             s=Sesiones.objects.get(token=request.COOKIES['token'])
             context = {'nombre':s.id_usuario.id_personal}
-            if s.fecha_expiracion >= timezone.now():
+            print(s.fecha_expiracion,timezone.now())
+            if (s.fecha_expiracion >= timezone.now()):
                 response=HttpResponse(render(request,'users/index.html',context))
                 return response
 
