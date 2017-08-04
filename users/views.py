@@ -13,14 +13,14 @@ from django.utils.crypto import get_random_string
 
 def index(request):
     message = None
-
     print(request.COOKIES)
     if 'token' in request.COOKIES:
-        s=Sesiones.objects.get(token=request.COOKIES['token'])
-        context = {'nombre':s.id_usuario.id_personal}
-        if s.fecha_expiracion >= timezone.now():
-            response=HttpResponse(render(request,'users/index.html',context))
-            return response
+        if Sesiones.objects.filter(token=request.COOKIES['token']):
+            s=Sesiones.objects.get(token=request.COOKIES['token'])
+            context = {'nombre':s.id_usuario.id_personal}
+            if s.fecha_expiracion >= timezone.now():
+                response=HttpResponse(render(request,'users/index.html',context))
+                return response
 
     if request.method == "POST":
 
@@ -36,10 +36,11 @@ def index(request):
                 id = Usuarios.objects.only('id').get(username=username)
                 if p.password == password:
                     print("usuario y cotraseña correcto")
-                    q=Sesiones(token=get_random_string(length=30),fecha_creacion=timezone.now(),fecha_expiracion=timezone.now()+datetime.timedelta(minutes=30),id_usuario=id)
-                    q.save()
-                    response=HttpResponse(render(request,'users/index.html'))
-                    response.set_cookie('token',q.token)
+                    s=Sesiones(token=get_random_string(length=30),fecha_creacion=timezone.now(),fecha_expiracion=timezone.now()+datetime.timedelta(minutes=30),id_usuario=id)
+                    s.save()
+                    context = {'nombre':s.id_usuario.id_personal}
+                    response=HttpResponse(render(request,'users/index.html',context))
+                    response.set_cookie('token',s.token)
                     return response
                 else:
                     message='Pass incorrecto'
