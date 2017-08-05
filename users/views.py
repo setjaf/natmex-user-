@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from users.forms import LoginForm
@@ -10,6 +10,7 @@ from .models import Usuarios, Sesiones, Personal
 import datetime
 from django.utils import timezone
 from django.utils.crypto import get_random_string
+from django.contrib import auth
 
 def index(request):
     message = None
@@ -18,7 +19,6 @@ def index(request):
         if Sesiones.objects.filter(token=request.COOKIES['token']):
             s=Sesiones.objects.get(token=request.COOKIES['token'])
             context = {'nombre':s.id_usuario.id_personal}
-            print(s.fecha_expiracion,timezone.now())
             if (s.fecha_expiracion >= timezone.now()):
                 response=HttpResponse(render(request,'users/index.html',context))
                 return response
@@ -55,4 +55,19 @@ def index(request):
     context={'messages':message, 'form':form}
 
     return HttpResponse(render(request, 'users/login.html', context))
+
+
+def otra(request):
+    print(request.COOKIES)
+    if 'token' in request.COOKIES:
+        print(' si hay token en cookies')
+        if Sesiones.objects.filter(token=request.COOKIES['token']):
+            s=Sesiones.objects.get(token=request.COOKIES['token'])
+            context = {'nombre':s.id_usuario.id_personal}
+            if (s.fecha_expiracion >= timezone.now()):
+                response=HttpResponse(render(request,'users/otra.html',context))
+                return response
+    context = {'form':LoginForm()}
+    return redirect('/')
+
 # Create your views here.
